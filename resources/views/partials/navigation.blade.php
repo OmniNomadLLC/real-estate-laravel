@@ -38,21 +38,33 @@
                             
                             <div class="user-panel">
                                 @auth
-                                    <div class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle fw-semibold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                    <div class="dropdown">
+                                        <a class="nav-link dropdown-toggle fw-semibold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa-regular fa-user"></i> {{ Auth::user()->name }}
                                         </a>
-                                        <ul class="dropdown-menu">
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                             @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('agent'))
-                                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                                    <i class="fa-solid fa-tachometer-alt me-2"></i>Dashboard
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ route('admin.properties.index') }}">
+                                                    <i class="fa-solid fa-home me-2"></i>My Properties
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ route('admin.properties.create') }}">
+                                                    <i class="fa-solid fa-plus me-2"></i>Add Property
+                                                </a></li>
+                                                <li><hr class="dropdown-divider"></li>
                                             @endif
-                                            <li><a class="dropdown-item" href="#">My Profile</a></li>
-                                            <li><a class="dropdown-item" href="#">Favorites</a></li>
+                                            <li><a class="dropdown-item" href="#">
+                                                <i class="fa-solid fa-user me-2"></i>My Profile
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#">
+                                                <i class="fa-solid fa-heart me-2"></i>Favorites
+                                            </a></li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <a class="dropdown-item" href="{{ route('logout') }}" 
-                                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                                    Logout
+                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                                    <i class="fa-solid fa-sign-out-alt me-2"></i>Logout
                                                 </a>
                                             </li>
                                         </ul>
@@ -61,14 +73,14 @@
                                         @csrf
                                     </form>
                                 @else
-                                            <a href="{{ route('login') }}" class="fw-semibold" title="Login or Registration">
-                                                <i class="fa-regular fa-user"></i> Login
-                                            </a>
+                                    <a href="#" class="fw-semibold me-3" title="Login" data-bs-toggle="modal" data-bs-target="#loginmodal">
+                                        <i class="fa-regular fa-user"></i> Login
+                                    </a>
                                 @endauth
                             </div>
                             
                             @auth
-                                @if(Auth::user()->hasRole('agent'))
+                                @if(Auth::user()->hasRole('agent') || Auth::user()->hasRole('admin'))
                                     <a href="{{ route('admin.properties.create') }}" class="btn btn-primary btn-hover-secondary hover-flash-move">+ Add Property</a>
                                 @endif
                             @else
@@ -83,7 +95,7 @@
 </header>
 <!--============== Header Section End ==============-->
 
-<!-- Login Modal (for non-authenticated users) 
+<!-- Login Modal (for non-authenticated users) -->
 @guest
 <div class="modal fade login-modal" id="loginmodal" tabindex="-1" aria-labelledby="loginmodalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -99,19 +111,29 @@
                         <div class="col">
                             <label class="access-field">
                                 <i class="fa-solid fa-user"></i> 
-                                <input type="email" class="form-control" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                                       name="email" placeholder="Email" value="{{ old('email') }}" required>
                             </label>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col">
                             <label class="access-field">
                                 <i class="fa-solid fa-lock"></i> 
-                                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                                       name="password" placeholder="Password" required>
                             </label>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col">
                             <div class="d-flex justify-content-between">
                                 <label><input type="checkbox" name="remember"> Remember me</label>
-                                <span><a href="{{ route('password.request') }}">Forgot Password</a></span>
+                                @if (Route::has('password.request'))
+                                    <span><a href="{{ route('password.request') }}">Forgot Password</a></span>
+                                @endif
                             </div>
                         </div>
                         <div class="col">
@@ -119,6 +141,14 @@
                         </div>
                     </div>
                 </form>
+                
+                <!-- Quick Test Login -->
+                <div class="mt-3 p-3 bg-light rounded">
+                    <small class="text-muted d-block mb-2"><strong>Quick Test Login:</strong></small>
+                    <small class="text-muted d-block">Admin: admin@realestate.com / password</small>
+                    <small class="text-muted d-block">Agent: john@realestate.com / password</small>
+                    <small class="text-muted d-block">User: user@realestate.com / password</small>
+                </div>
             </div>
             <div class="modal-footer d-flex justify-content-start">
                 <a href="{{ route('register') }}" class="text-dark d-table font-primary fw-medium ls-1 hover-color-primary">
@@ -128,4 +158,26 @@
         </div>
     </div>
 </div>
-@endguest-->
+@endguest
+
+<script>
+// Ensure Bootstrap dropdown works
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all dropdowns
+    var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl);
+    });
+    
+    // Alternative manual click handler if Bootstrap fails
+    document.getElementById('userDropdown')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        const dropdownMenu = this.nextElementSibling;
+        if (dropdownMenu.classList.contains('show')) {
+            dropdownMenu.classList.remove('show');
+        } else {
+            dropdownMenu.classList.add('show');
+        }
+    });
+});
+</script>

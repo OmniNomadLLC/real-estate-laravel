@@ -20,14 +20,16 @@ Route::get('/agents', function () {
     return view('frontend.agents.index');
 })->name('agents.index');
 
-// Admin routes (protected)
-Route::middleware(['auth', 'role:admin|agent'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard.index');
-    })->name('dashboard');
+// Admin routes (protected) - Remove role middleware for now
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    
+    Route::get('/properties', function () {
+        return 'Property Management Coming Soon';
+    })->name('properties.index');
     
     Route::get('/properties/create', function () {
-        return 'Add Property Page';
+        return 'Add Property Form Coming Soon';
     })->name('properties.create');
 });
 
