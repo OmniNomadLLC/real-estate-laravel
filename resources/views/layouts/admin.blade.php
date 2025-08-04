@@ -40,7 +40,7 @@
     <div id="page_wrapper" class="bg-light-gray">
         <div class="sidebar-page-wrapper">
             <!-- Admin Sidebar -->
-            @include('admin.partials.sidebar')
+            @include('admin.partials.sidebar')lollol
             
             <div class="right-sidebar-block">
                 <!-- Admin Header -->
